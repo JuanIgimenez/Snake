@@ -1,7 +1,9 @@
 import pygame
 import sys
 import random
-
+def comida():
+    comida_pos = [random.randint(0,32)*30, random.randint(0,19)*30]
+    return comida_pos
 #from pygame import*
 def main():
     #inicio de ventana 
@@ -9,7 +11,7 @@ def main():
     #configuraciones de ventana
     ventana=pygame.display.set_mode((1000,600))
     pygame.display.set_caption("Snake")
-    #colores
+    #colores variables
     c_ventana=((80,76,76))
     c_personaje=((126,216,64))
     c_comida=((239,232,22))
@@ -17,44 +19,71 @@ def main():
     superficie1=pygame.Surface((1001,601))
     sup1=superficie1.get_rect()
     sup1.center=(500,300)
-    #comida
 
-    #personaje
-    cabeza=pygame.Surface((34,34))
-    cabeza_rect=cabeza.get_rect()
-    cabeza_rect.center=(500,300)  
+    cuerpo_pos=[100,50]
+    cuerpo=[[100,50]]
+
+    direccion="RIGHT"
+    cambio=direccion
+
+    comida_pos=comida()
     while True:
-        pygame.time.Clock().tick(100)
-        #controles
-        while True:
-            tecla=pygame.key.get_pressed()
-            if tecla[pygame.K_w]:
-                cabeza_rect.y -=2.5
-            if tecla[pygame.K_a]:
-                cabeza_rect.x -=2.5           
-            if tecla[pygame.K_d]:
-                cabeza_rect.x +=2.5
-            if tecla[pygame.K_s]:
-                cabeza_rect.y +=2.5
-       
+        #velocidad del programa
+        pygame.time.Clock().tick(30)
         #salida
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()  
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        cambio= "RIGHT"
+                    if event.key == pygame.K_LEFT:
+                        cambio= "LEFT"
+                    if event.key == pygame.K_UP:
+                        cambio= "UP"
+                    if event.key == pygame.K_DOWN:
+                        cambio= "DOWN"
+
+        if cambio == "RIGHT" and direccion != "LEFT":
+            direccion = "RIGHT"
+        if cambio == "LEFT" and direccion != "RIGHT":
+            direccion = "LEFT"
+        if cambio == "UP" and direccion != "DOWN":
+            direccion = "UP"
+        if cambio == "DOWN" and direccion != "UP":
+            direccion = "DOWN"
+
+        if direccion == "RIGHT":
+            cuerpo_pos[0] += 10
+        if direccion == "LEFT":
+            cuerpo_pos[0] -= 10
+        if direccion == "UP":
+            cuerpo_pos[1] -= 10
+        if direccion == "DOWN":
+            cuerpo_pos[1] += 10
+        cuerpo.insert(0, list(cuerpo_pos))
+        if cuerpo_pos == comida_pos:
+            comida_pos = comida()
+        #else:
+            #cuerpo.pop() 
         #coliciones borde
-        if cabeza_rect.x>=966:
-            cabeza_rect.x=5
-        if cabeza_rect.x <=1:
-            cabeza_rect.x=966
-        if cabeza_rect.y <=1:
-            cabeza_rect.y=565
-        if cabeza_rect.y >=566:
-            cabeza_rect.y=5
+        if cuerpo_pos[0] <=1:
+            cuerpo_pos[0]=965
+        if cuerpo_pos[0] >=966:
+            cuerpo_pos[0]=3       
+        if cuerpo_pos[1] <=1:
+            cuerpo_pos[1]=565
+        if cuerpo_pos[1] >=566:
+            cuerpo_pos[1]=5
+
         #display
         ventana.blit(superficie1,sup1)
         superficie1.fill(c_ventana)
-        superficie1.blit(cabeza,cabeza_rect)
-        cabeza.fill(c_personaje)        
+        for pos in cuerpo:
+            pygame.draw.rect(superficie1,c_personaje, pygame.Rect(pos[0], pos[1], 30, 30))
+        
+        pygame.draw.rect(superficie1, (255,160,60), pygame.Rect(comida_pos[0], comida_pos[1], 30, 30))
         pygame.display.update()
+
 if __name__=="__main__":
     main()
